@@ -49,6 +49,8 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'user'],
+                'GET user/say' => 'user/say',
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'auth'],
             ],
         ],
 
