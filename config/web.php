@@ -48,9 +48,9 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'user'],
-                'GET user/say' => 'user/say',
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'auth'],
+                // TODO: отключить экшены для user'а
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'auth', 'task']],
+                'POST tasks/status/<id:\d+>' => 'task/status',
             ],
         ],
 
