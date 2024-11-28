@@ -51,6 +51,8 @@ $config = [
                 // TODO: отключить экшены для user'а
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'auth', 'task']],
                 'POST tasks/status/<id:\d+>' => 'task/status',
+                'GET comments/<task_id:\d+>' => 'comment/view',
+                'POST comments' => 'comment/create',
             ],
         ],
 

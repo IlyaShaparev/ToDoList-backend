@@ -29,9 +29,4 @@ class UserController extends \yii\rest\ActiveController
         ];
         return $behaviors;
     }
-
-    public function actionSay()
-    {
-        return ['messange' => 'Hello!'];
-    }
 }

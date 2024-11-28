@@ -34,7 +34,25 @@ class TaskController extends Controller
      */
     public function actionIndex(): array
     {
-        return Task::find()->all();
+        $query = Task::find();
+
+        if ($status = Yii::$app->request->get('status')) {
+            $query->andWhere(['is_closed' => $status]);
+        }
+
+        if ($priority = Yii::$app->request->get('priority')) {
+            $query->andWhere(['priority' => $priority]);
+        }
+
+        if ($sort = Yii::$app->request->get('sort')) {
+            if (str_starts_with($sort, '-')) {
+                $query->orderBy([substr($sort, 1) => SORT_DESC]);
+            } else {
+                $query->orderBy([$sort => SORT_ASC]);
+            }
+        }
+
+        return $query->all();
     }
 
     /**
@@ -49,13 +67,13 @@ class TaskController extends Controller
         $user = Yii::$app->user->identity;
         $title = $request->post("title");
         $description = $request->post("description");
-        $color = $request->post("color");
+        $priority = $request->post("priority");
 
         $taskTemplate = new Task();
 
         $taskTemplate->title = $title;
         $taskTemplate->description = $description;
-        $taskTemplate->color = $color;
+        $taskTemplate->priority = $priority;
         $taskTemplate->created_time = date('Y-m-d H:i:s');
 
         if (!$taskTemplate->save()) {
