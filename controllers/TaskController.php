@@ -43,7 +43,11 @@ class TaskController extends Controller
         }
 
         if ($priority = Yii::$app->request->get('priority')) {
-            $query->andWhere(['priority' => $priority]);
+            if(str_starts_with($priority, '-')) {
+                $query->andWhere(['<', 'priority', 5]);
+            } else {
+                $query->andWhere(['>=', 'priority', 5]);
+            }
         }
 
         $query->andWhere(['user_id' => $user->getId()]);
