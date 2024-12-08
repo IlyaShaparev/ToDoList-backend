@@ -13,6 +13,9 @@ $config = [
     ],
     'components' => [
         'request' => [
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
             'cookieValidationKey' => 'yom9WR9H2kt0LlTVI5tD6YlyC3maaVX8',
             'baseUrl' => '',
         ],
@@ -53,9 +56,19 @@ $config = [
                 'POST tasks/status/<id:\d+>' => 'task/status',
                 'GET comments/<task_id:\d+>' => 'comment/view',
                 'POST comments' => 'comment/create',
+                'GET export/<format>' => 'export/export',
+                'GET tasks/show' => 'task/show'
             ],
         ],
-
+        'as cors' => [
+            'class' => \yii\filters\Cors::class,
+            'cors' => [
+                'Origin' => ['http://localhost:5173'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'],
+                'Access-Control-Allow-Credentials' => true,
+                'Access-Control-Allow-Headers' => ['Content-Type', 'Authorization'],
+            ],
+        ],
     ],
     'params' => $params,
 ];

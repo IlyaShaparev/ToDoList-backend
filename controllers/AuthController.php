@@ -34,7 +34,7 @@ class AuthController extends \yii\rest\Controller
 
 
             if ($user->save()) {
-                return ['token' => $token];
+                return ['token' => $token, 'user' => $user];
             } else {
                 // TODO: Кастомный Exception
                 throw new Exception('Bad save');

@@ -54,7 +54,7 @@ class CommentController extends Controller
         $request = Yii::$app->request;
         $commentTemplate = new Comment();
 
-        $commentTemplate->text = $request->post('text');
+        $commentTemplate->commentText = $request->post('commentText');
         $commentTemplate->task_id = $request->post('task_id');
         $commentTemplate->created_time = date("Y-m-d H:i:s");
         $commentTemplate->user_id = Yii::$app->user->identity->getId();

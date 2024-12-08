@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Comment;
 use app\models\Task;
 use app\models\UserToTask;
 use Exception;
@@ -34,6 +35,7 @@ class TaskController extends Controller
      */
     public function actionIndex(): array
     {
+        $user = Yii::$app->user->identity;
         $query = Task::find();
 
         if ($status = Yii::$app->request->get('status')) {
@@ -44,6 +46,8 @@ class TaskController extends Controller
             $query->andWhere(['priority' => $priority]);
         }
 
+        $query->andWhere(['user_id' => $user->getId()]);
+
         if ($sort = Yii::$app->request->get('sort')) {
             if (str_starts_with($sort, '-')) {
                 $query->orderBy([substr($sort, 1) => SORT_DESC]);
@@ -52,7 +56,13 @@ class TaskController extends Controller
             }
         }
 
-        return $query->all();
+        $tasks = $query->all();
+        $comments = [];
+        foreach($tasks as $task) {
+            $comments[$task->id] = Comment::find()->where(['task_id' => $task->id])->all();
+        }
+
+        return ['tasks' => $tasks, 'comments' => $comments];
     }
 
     /**
@@ -74,19 +84,12 @@ class TaskController extends Controller
         $taskTemplate->title = $title;
         $taskTemplate->description = $description;
         $taskTemplate->priority = $priority;
+        $taskTemplate->is_closed = -1;
         $taskTemplate->created_time = date('Y-m-d H:i:s');
+        $taskTemplate->user_id = $user->getId();
 
         if (!$taskTemplate->save()) {
            throw new BadRequestHttpException("Bad task data");
-        }
-
-        $taskToUserTemplate = new UserToTask();
-
-        $taskToUserTemplate->task_id = $taskTemplate->getId();
-        $taskToUserTemplate->user_id = $user->getId();
-
-        if (!$taskToUserTemplate->save()) {
-            throw new BadRequestHttpException("Bad task or user data");
         }
 
         return ['task' => $taskTemplate];
@@ -164,12 +167,12 @@ class TaskController extends Controller
      * <b>Изменяем статус задачи по id</b> <br>
      * <i>(endpoint POST /tasks/status/{id})</i>
      * @param int|null $id
-     * @return array
+     * @return Task
      * @throws BadRequestHttpException
      * @throws NotFoundHttpException
      * @throws \yii\db\Exception
      */
-    public function actionStatus(?int $id): array
+    public function actionStatus(?int $id): Task
     {
         $task = Task::findOne($id);
         if (is_null($task)) {
@@ -179,11 +182,11 @@ class TaskController extends Controller
         $request = Yii::$app->request;
         $isClosed = $request->post('is_closed');
 
-        if (!is_null($isClosed) && $isClosed) {
+        if (!is_null($isClosed) && $isClosed === -1) {
             $task->is_closed = 1;
             $task->closed_time = date("Y-m-d H:i:s");
-        } elseif (!is_null($isClosed) && !$isClosed) {
-            $task->is_closed = 0;
+        } elseif (!is_null($isClosed) && $isClosed !== -1) {
+            $task->is_closed = -1;
             $task->closed_time = null;
             $task->updated_time = date('Y-m-d H:i:s');
         } else {
@@ -191,9 +194,21 @@ class TaskController extends Controller
         }
 
         if($task->save()) {
-            return [$task];
+            return $task;
         }
 
         throw new BadRequestHttpException("Something went wrong");
+    }
+
+    public function actionShow () {
+        $user = Yii::$app->user->identity;
+
+        $tasks = Task::find()->where(['!=', 'user_id', $user->getId()])->all();
+        $comments = [];
+        foreach($tasks as $task) {
+            $comments[$task->id] = Comment::find()->where(['task_id' => $task->id])->all();
+        }
+
+        return ['tasks' => $tasks, 'comments' => $comments];
     }
 }

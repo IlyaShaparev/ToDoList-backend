@@ -14,11 +14,11 @@ class Comment extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['text', 'created_time', 'task_id', 'user_id'], 'required'],
-            ['text', 'string', 'min' => 3, 'max' => 255],
-            ['created_time', 'string', 'max' => 20],
-            ['task_id' => 'integer'],
-            ['user_id' => 'integer'],
+            [['commentText', 'created_time', 'task_id', 'user_id'], 'required'],
+            ['commentText', 'string'],
+            ['created_time', 'string'],
+            ['task_id', 'integer'],
+            ['user_id', 'integer']
         ];
     }
 }
